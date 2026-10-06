@@ -96,7 +96,12 @@ class _PropertyPanelState extends State<PropertyPanel> {
           Icon(Icons.tune, size: 20, color: theme.colorScheme.primary),
           const SizedBox(width: 8),
           Expanded(
-            child: Text('AppBar properties', style: theme.textTheme.titleSmall),
+            child: Text(
+              'AppBar properties',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.titleSmall,
+            ),
           ),
           TextButton.icon(
             onPressed: _allDefaults ? null : widget.onReset,
