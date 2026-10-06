@@ -65,24 +65,27 @@ class _PropertyPanelState extends State<PropertyPanel> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: widget.maxHeight),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(theme),
-            Flexible(
-              child: AnimatedSize(
-                duration: _expandDuration,
-                curve: Curves.easeOutCubic,
-                alignment: Alignment.topCenter,
-                child: _isExpanded
-                    ? _buildPropertyRows()
-                    : const SizedBox(width: double.infinity),
+      child: SafeArea(
+        top: false,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: widget.maxHeight),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildHeader(theme),
+              Flexible(
+                child: AnimatedSize(
+                  duration: _expandDuration,
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.topCenter,
+                  child: _isExpanded
+                      ? _buildPropertyRows()
+                      : const SizedBox(width: double.infinity),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -54,7 +54,10 @@ class OrderSummarySheet extends StatelessWidget {
                           style: theme.textTheme.titleMedium,
                         ),
                         title: Text(item.name),
-                        trailing: Text(formatRwf(item.priceRwf * quantity)),
+                        trailing: Text(
+                          formatRwf(item.priceRwf * quantity),
+                          style: theme.textTheme.bodyLarge,
+                        ),
                       ),
                   ],
                 ),

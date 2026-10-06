@@ -90,8 +90,11 @@ class _MenuScreenState extends State<MenuScreen> {
           CartButton(itemCount: _itemCount, onPressed: _showOrderSummary),
         ],
       ),
+      // The panel handles the bottom system inset itself, so its colour can
+      // run to the bottom edge of the screen.
       body: SafeArea(
         top: false,
+        bottom: false,
         child: LayoutBuilder(
           builder: (context, constraints) => Column(
             children: [
