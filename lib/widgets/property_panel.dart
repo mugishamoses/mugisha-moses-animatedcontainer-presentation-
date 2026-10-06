@@ -5,17 +5,55 @@ import 'package:brew_lane/models/app_bar_color_option.dart';
 /// Font family Android maps to its system monospace font.
 const String _monospace = 'monospace';
 
-/// Live controls for the AppBar properties this app demonstrates. Each row
-/// shows the value currently passed to the AppBar's constructor.
-class PropertyPanel extends StatelessWidget {
+/// Live controls for the three AppBar properties this app demonstrates. Each
+/// row shows the value currently passed to the AppBar's constructor.
+class PropertyPanel extends StatefulWidget {
   const PropertyPanel({
     super.key,
+    required this.maxHeight,
     required this.colorOption,
+    required this.centerTitle,
+    required this.toolbarHeight,
     required this.onColorOptionChanged,
+    required this.onCenterTitleChanged,
+    required this.onToolbarHeightChanged,
+    required this.onReset,
   });
 
+  /// Smallest toolbarHeight offered: just enough for a 48 dp touch target.
+  static const double minToolbarHeight = 48;
+
+  /// Largest toolbarHeight offered: tall enough to make the effect obvious.
+  static const double maxToolbarHeight = 128;
+
+  /// Slider step. 8 dp follows the Material spacing grid and makes the
+  /// default of 56 dp one of the stops.
+  static const double toolbarHeightStep = 8;
+
+  /// The panel never grows taller than this; extra content scrolls instead.
+  final double maxHeight;
+
   final AppBarColorOption colorOption;
+  final bool? centerTitle;
+  final double? toolbarHeight;
   final ValueChanged<AppBarColorOption> onColorOptionChanged;
+  final ValueChanged<bool?> onCenterTitleChanged;
+  final ValueChanged<double> onToolbarHeightChanged;
+  final VoidCallback onReset;
+
+  @override
+  State<PropertyPanel> createState() => _PropertyPanelState();
+}
+
+class _PropertyPanelState extends State<PropertyPanel> {
+  bool _isExpanded = true;
+
+  static const Duration _expandDuration = Duration(milliseconds: 250);
+
+  bool get _allDefaults =>
+      widget.colorOption == AppBarColorOption.themeDefault &&
+      widget.centerTitle == null &&
+      widget.toolbarHeight == null;
 
   @override
   Widget build(BuildContext context) {
@@ -27,32 +65,113 @@ class PropertyPanel extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: widget.maxHeight),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(
-              height: kMinInteractiveDimension,
-              child: Row(
-                children: [
-                  Icon(Icons.tune, size: 20, color: theme.colorScheme.primary),
-                  const SizedBox(width: 8),
-                  Text('AppBar properties', style: theme.textTheme.titleSmall),
-                ],
+            _buildHeader(theme),
+            Flexible(
+              child: AnimatedSize(
+                duration: _expandDuration,
+                curve: Curves.easeOutCubic,
+                alignment: Alignment.topCenter,
+                child: _isExpanded
+                    ? _buildPropertyRows()
+                    : const SizedBox(width: double.infinity),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 4, 0),
+      child: Row(
+        children: [
+          Icon(Icons.tune, size: 20, color: theme.colorScheme.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text('AppBar properties', style: theme.textTheme.titleSmall),
+          ),
+          TextButton.icon(
+            onPressed: _allDefaults ? null : widget.onReset,
+            icon: const Icon(Icons.restart_alt, size: 18),
+            label: const Text('Reset'),
+          ),
+          IconButton(
+            tooltip: _isExpanded ? 'Hide properties' : 'Show properties',
+            onPressed: () => setState(() => _isExpanded = !_isExpanded),
+            icon: Icon(_isExpanded ? Icons.expand_more : Icons.expand_less),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPropertyRows() {
+    final effectiveHeight = widget.toolbarHeight ?? kToolbarHeight;
+
+    // Swallow the panel's own scroll notifications: the AppBar listens for
+    // scrolling to switch to its "scrolled under" look, and only the menu
+    // should trigger that.
+    return NotificationListener<ScrollNotification>(
+      onNotification: (_) => true,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             _PropertyRow(
               number: 1,
               name: 'backgroundColor',
               value: _codeValue(
-                colorOption.backgroundCode,
+                widget.colorOption.backgroundCode,
                 whenNull: 'surface',
               ),
               control: _ColorSwatchPicker(
-                selected: colorOption,
-                onSelected: onColorOptionChanged,
+                selected: widget.colorOption,
+                onSelected: widget.onColorOptionChanged,
+              ),
+            ),
+            _PropertyRow(
+              number: 2,
+              name: 'centerTitle',
+              value: _codeValue(widget.centerTitle, whenNull: 'platform'),
+              control: SegmentedButton<bool?>(
+                expandedInsets: EdgeInsets.zero,
+                showSelectedIcon: false,
+                segments: const [
+                  ButtonSegment(value: null, label: Text('Default')),
+                  ButtonSegment(value: false, label: Text('Start')),
+                  ButtonSegment(value: true, label: Text('Center')),
+                ],
+                selected: {widget.centerTitle},
+                onSelectionChanged: (selection) =>
+                    widget.onCenterTitleChanged(selection.single),
+              ),
+            ),
+            _PropertyRow(
+              number: 3,
+              name: 'toolbarHeight',
+              value: _codeValue(
+                widget.toolbarHeight,
+                whenNull: '$kToolbarHeight',
+              ),
+              control: Slider(
+                min: PropertyPanel.minToolbarHeight,
+                max: PropertyPanel.maxToolbarHeight,
+                divisions:
+                    (PropertyPanel.maxToolbarHeight -
+                        PropertyPanel.minToolbarHeight) ~/
+                    PropertyPanel.toolbarHeightStep,
+                value: effectiveHeight,
+                label: effectiveHeight.toStringAsFixed(0),
+                onChanged: widget.onToolbarHeightChanged,
               ),
             ),
           ],
