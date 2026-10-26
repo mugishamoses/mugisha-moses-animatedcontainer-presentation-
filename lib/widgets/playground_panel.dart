@@ -170,8 +170,10 @@ class _DurationControl extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            const _PropertyLabel(name: 'duration', note: 'required'),
-            const Spacer(),
+            const Expanded(
+              child: _PropertyLabel(name: 'duration', note: 'required'),
+            ),
+            const SizedBox(width: 8),
             Text(
               '${settings.durationMs} ms',
               style: const TextStyle(
@@ -372,6 +374,14 @@ class _PropertyLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: _labelRow(),
+    );
+  }
+
+  Widget _labelRow() {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

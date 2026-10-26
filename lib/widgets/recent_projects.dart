@@ -62,49 +62,51 @@ class _ProjectCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 9:16 "thumbnail", the shape of a phone video.
-          Container(
-            height: 188,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: project.gradient,
-              ),
-            ),
-            child: Stack(
-              children: [
-                const Center(
-                  child: Icon(
-                    LucideIcons.play,
-                    color: Colors.white70,
-                    size: 26,
-                  ),
+          // Phone-video-shaped "thumbnail". Expanded lets it give up space
+          // if the user has a large system font size.
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: project.gradient,
                 ),
-                Positioned(
-                  left: 8,
-                  bottom: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 3,
+              ),
+              child: Stack(
+                children: [
+                  const Center(
+                    child: Icon(
+                      LucideIcons.play,
+                      color: Colors.white70,
+                      size: 26,
                     ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.45),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      project.duration,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        fontFeatures: [FontFeature.tabularFigures()],
+                  ),
+                  Positioned(
+                    left: 8,
+                    bottom: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.45),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        project.duration,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 10),
