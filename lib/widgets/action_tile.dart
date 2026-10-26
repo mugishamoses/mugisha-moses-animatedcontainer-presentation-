@@ -1,39 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:clipo/models/quick_action.dart';
 import 'package:clipo/theme/app_colors.dart';
 
 /// A rounded icon square with its caption underneath.
-class ActionTile extends StatelessWidget {
+/// It shrinks slightly while pressed and springs back on release.
+class ActionTile extends StatefulWidget {
   const ActionTile({super.key, required this.action, required this.onTap});
 
   final QuickAction action;
   final VoidCallback onTap;
 
   @override
+  State<ActionTile> createState() => _ActionTileState();
+}
+
+class _ActionTileState extends State<ActionTile> {
+  bool _pressed = false;
+
+  void _setPressed(bool value) => setState(() => _pressed = value);
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
       behavior: HitTestBehavior.opaque,
+      onTapDown: (_) => _setPressed(true),
+      onTapCancel: () => _setPressed(false),
+      onTapUp: (_) => _setPressed(false),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        widget.onTap();
+      },
       child: Semantics(
         button: true,
-        label: action.label,
+        label: widget.action.label,
         excludeSemantics: true,
         child: Column(
           children: [
-            Container(
-              width: AppSizes.tileSize,
-              height: AppSizes.tileSize,
-              decoration: BoxDecoration(
-                color: AppColors.tile,
-                borderRadius: BorderRadius.circular(AppSizes.tileRadius),
+            AnimatedScale(
+              duration: const Duration(milliseconds: 160),
+              curve: _pressed ? Curves.easeOut : Curves.easeOutBack,
+              scale: _pressed ? 0.92 : 1,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 160),
+                width: AppSizes.tileSize,
+                height: AppSizes.tileSize,
+                decoration: BoxDecoration(
+                  color: _pressed ? AppColors.tilePressed : AppColors.tile,
+                  borderRadius: BorderRadius.circular(AppSizes.tileRadius),
+                ),
+                alignment: Alignment.center,
+                child: _glyph(),
               ),
-              alignment: Alignment.center,
-              child: _glyph(),
             ),
             const SizedBox(height: 6),
             Text(
-              action.label,
+              widget.action.label,
               maxLines: 1,
               softWrap: false,
               overflow: TextOverflow.visible,
@@ -51,7 +74,7 @@ class ActionTile extends StatelessWidget {
   }
 
   Widget _glyph() {
-    final icon = action.icon;
+    final icon = widget.action.icon;
     if (icon == null) {
       return const Text(
         'Aa',
