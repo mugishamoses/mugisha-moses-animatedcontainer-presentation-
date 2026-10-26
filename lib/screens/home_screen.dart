@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:clipo/models/animation_settings.dart';
 import 'package:clipo/models/project.dart';
@@ -8,6 +9,7 @@ import 'package:clipo/widgets/action_grid.dart';
 import 'package:clipo/widgets/empty_tab.dart';
 import 'package:clipo/widgets/morphing_bar.dart';
 import 'package:clipo/widgets/nav_icons.dart';
+import 'package:clipo/widgets/playground_panel.dart';
 import 'package:clipo/widgets/recent_projects.dart';
 import 'package:clipo/widgets/toggle_button.dart';
 
@@ -28,13 +30,34 @@ class _HomeScreenState extends State<HomeScreen> {
   /// The "Tap + for quick actions" hint disappears after the first use.
   bool _hasOpenedOnce = false;
 
-  final AnimationSettings _settings = AnimationSettings.polished;
+  /// The three AnimatedContainer properties, edited live in the playground.
+  AnimationSettings _settings = AnimationSettings.polished;
+
+  bool _playgroundOpen = false;
+  bool _replaying = false;
 
   void _setOpen(bool open) {
     setState(() {
       _isOpen = open;
       if (open) _hasOpenedOnce = true;
     });
+  }
+
+  /// Opens the bar, holds it open briefly, then closes it again, so the
+  /// presenter can talk while the class watches the animation.
+  Future<void> _replay() async {
+    setState(() => _replaying = true);
+    _setOpen(false);
+    await Future<void>.delayed(const Duration(milliseconds: 150));
+    if (!mounted) return;
+    _setOpen(true);
+    await Future<void>.delayed(
+      _settings.duration + const Duration(milliseconds: 900),
+    );
+    if (!mounted) return;
+    _setOpen(false);
+    await Future<void>.delayed(_settings.duration);
+    if (mounted) setState(() => _replaying = false);
   }
 
   void _runAction(QuickAction action) {
@@ -77,18 +100,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   SizedBox(
                     height: 52,
-                    child: Center(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
-                        child: Text(
-                          navTabs[_tab].label,
-                          key: ValueKey(_tab),
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w500,
+                    width: double.infinity,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: Text(
+                            navTabs[_tab].label,
+                            key: ValueKey(_tab),
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
-                      ),
+                        Positioned(
+                          right: 16,
+                          child: _TuneButton(
+                            active: _playgroundOpen,
+                            onTap: () => setState(
+                              () => _playgroundOpen = !_playgroundOpen,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -145,6 +181,45 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
+            // Drops down from the top so the bar stays visible below it.
+            Positioned(
+              top: MediaQuery.paddingOf(context).top + 52,
+              left: 16,
+              right: 16,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight:
+                      (MediaQuery.sizeOf(context).height -
+                              MediaQuery.paddingOf(context).top -
+                              52 -
+                              barBottom -
+                              AppSizes.panelHeight -
+                              16)
+                          .clamp(160, double.infinity),
+                ),
+                child: IgnorePointer(
+                  ignoring: !_playgroundOpen,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 220),
+                    opacity: _playgroundOpen ? 1 : 0,
+                    child: AnimatedSlide(
+                      duration: const Duration(milliseconds: 280),
+                      curve: Curves.easeOutCubic,
+                      offset: _playgroundOpen
+                          ? Offset.zero
+                          : const Offset(0, -0.04),
+                      child: PlaygroundPanel(
+                        settings: _settings,
+                        replaying: _replaying,
+                        onChanged: (s) => setState(() => _settings = s),
+                        onReplay: _replay,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
             Positioned(
               left: AppSizes.barSideMargin,
               right: AppSizes.barSideMargin,
@@ -179,6 +254,42 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Round button in the header that opens the animation playground.
+class _TuneButton extends StatelessWidget {
+  const _TuneButton({required this.active, required this.onTap});
+
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: 'Animation playground',
+      child: Semantics(
+        button: true,
+        label: 'Animation playground',
+        child: GestureDetector(
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: active ? Colors.white : AppColors.highlight,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              LucideIcons.slidersHorizontal,
+              size: 17,
+              color: active ? Colors.black : Colors.white,
+            ),
+          ),
         ),
       ),
     );
