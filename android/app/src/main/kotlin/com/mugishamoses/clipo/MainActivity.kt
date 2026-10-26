@@ -1,4 +1,4 @@
-package com.mugishamoses.parcel_tracker
+package com.mugishamoses.clipo
 
 import io.flutter.embedding.android.FlutterActivity
 
