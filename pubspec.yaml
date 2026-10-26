@@ -1,5 +1,5 @@
-name: brew_lane
-description: "Brew Lane: a café pickup-ordering screen demonstrating Flutter's AppBar widget."
+name: parcel_tracker
+description: "Parcel delivery tracker demonstrating Flutter's AnimatedContainer widget."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -30,6 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:

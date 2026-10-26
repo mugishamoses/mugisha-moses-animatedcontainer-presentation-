@@ -1,4 +1,4 @@
-package rw.tekaccess.brew_lane
+package com.mugishamoses.parcel_tracker
 
 import io.flutter.embedding.android.FlutterActivity
 
