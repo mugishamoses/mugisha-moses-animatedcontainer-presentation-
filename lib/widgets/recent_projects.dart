@@ -76,14 +76,20 @@ class _ProjectCard extends StatelessWidget {
             child: Stack(
               children: [
                 const Center(
-                  child: Icon(LucideIcons.play, color: Colors.white70, size: 26),
+                  child: Icon(
+                    LucideIcons.play,
+                    color: Colors.white70,
+                    size: 26,
+                  ),
                 ),
                 Positioned(
                   left: 8,
                   bottom: 8,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.45),
                       borderRadius: BorderRadius.circular(8),

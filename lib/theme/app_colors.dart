@@ -30,10 +30,10 @@ abstract final class AppColors {
 
 /// Sizes measured from the reference design (logical pixels).
 abstract final class AppSizes {
-  static const barHeight = 56.0;
+  static const barHeight = 54.0;
   static const panelHeight = 236.0;
   static const panelRadius = 24.0;
-  static const barSideMargin = 20.0;
+  static const barSideMargin = 28.0;
   static const barBottomMargin = 16.0;
   static const toggleGap = 12.0;
   static const tileSize = 54.0;
