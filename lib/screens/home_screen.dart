@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'package:clipo/models/animation_settings.dart';
 import 'package:clipo/theme/app_colors.dart';
+import 'package:clipo/models/quick_action.dart';
+import 'package:clipo/widgets/action_grid.dart';
 import 'package:clipo/widgets/morphing_bar.dart';
 import 'package:clipo/widgets/nav_icons.dart';
 import 'package:clipo/widgets/recent_projects.dart';
+import 'package:clipo/widgets/toggle_button.dart';
 
 /// Home screen of the Clipo video editor.
 class HomeScreen extends StatefulWidget {
@@ -16,7 +19,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _tab = 0;
+
+  /// The single piece of state that drives the whole morph.
+  bool _isOpen = false;
   final AnimationSettings _settings = AnimationSettings.polished;
+
+  void _toggle() => setState(() => _isOpen = !_isOpen);
+
+  void _runAction(QuickAction action) {
+    setState(() => _isOpen = false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,18 +67,27 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Expanded(
                   child: MorphingBar(
-                    isOpen: false,
+                    isOpen: _isOpen,
                     settings: _settings,
                     navigation: NavIcons(
                       selected: _tab,
-                      hidden: false,
+                      hidden: _isOpen,
                       settings: _settings,
                       onSelected: (i) => setState(() => _tab = i),
                     ),
-                    actions: const SizedBox.shrink(),
+                    actions: ActionGrid(
+                      visible: _isOpen,
+                      settings: _settings,
+                      onAction: _runAction,
+                    ),
                   ),
                 ),
-                const SizedBox(width: AppSizes.toggleGap + AppSizes.barHeight),
+                const SizedBox(width: AppSizes.toggleGap),
+                ToggleButton(
+                  isOpen: _isOpen,
+                  settings: _settings,
+                  onPressed: _toggle,
+                ),
               ],
             ),
           ),

@@ -36,7 +36,7 @@ class RecentProjects extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         SizedBox(
-          height: 236,
+          height: 250,
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             scrollDirection: Axis.horizontal,
